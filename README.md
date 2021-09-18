@@ -65,3 +65,10 @@ values or path of data one needs to specify it in the file.
 - For evaluating the embeddings run python scripts Evaluating_accuracy.py and Evaluating_accuracy.py provide the path of the pkl files.
 
 Similary, you can do the process for other ontologies present.
+
+
+## Data
+
+The preprocessed data for Snomed, Galen and GO are present [here](https://drive.google.com/file/d/1HHXogBAaQ5f0lJrAI_fVkuAmSTuh2IQW/view?usp=sharing)
+
+
