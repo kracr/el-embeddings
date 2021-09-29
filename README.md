@@ -18,7 +18,8 @@ scipy 1.2.0
 six 1.12.0     
 sklearn 0.0     
 tensorboard 1.15.0     
-tensorflow-gpu 1.15.0     
+tensorflow-gpu 1.15.0 
+torch 1.5.0
 
 The code is organized as follows:
 - experiments: This contains separate folder for each ontology the experiment is carried out upon.
