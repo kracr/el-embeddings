@@ -1,6 +1,6 @@
 # EmELpp
 EmEL++ is a geometric approach to generate embeddings for the description logic EL++
-The implementation is done using Python and Tensorflow Library.
+The implementation is done using Python and Pytorch Library.
 
 ## Requirements      
 Click 7.0    
