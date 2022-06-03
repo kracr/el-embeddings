@@ -1,6 +1,6 @@
 import os
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"  
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+os.environ["CUDA_VISIBLE_DEVICES"] = "MIG-GPU-714a8f8e-44b2-93f1-e64d-d5f204c379de/5/0"
 import click as ck
 import numpy as np
 import pandas as pd
@@ -17,6 +17,8 @@ from sklearn.manifold import TSNE
 from sklearn.metrics import roc_curve, auc, matthews_corrcoef
 import matplotlib.pyplot as plt
 from scipy.stats import rankdata
+import argparse
+from tqdm import tqdm
 
 logging.basicConfig(level=logging.INFO)
 import operator
@@ -79,12 +81,18 @@ def evaluate_hits(data,cls_embeds_file, embedding_size, batch_size, margin, reg_
     
     top1 = 0
     top10 = 0
+    top25 = 0
+    top50 = 0
     top100 = 0
     mean_rank = 0
     rank_vals =[]
-    for test_pts in data:
+    count=0
+    for test_pts in tqdm(data):
         c = test_pts[0]
         d = test_pts[1]
+        if c not in classes or d not in classes:
+            count+=1
+            continue
         index_c = classes[c]
         index_d = classes[d]
         dist =  np.linalg.norm(embeds - embeds[index_d], axis=1) 
@@ -101,14 +109,21 @@ def evaluate_hits(data,cls_embeds_file, embedding_size, batch_size, margin, reg_
             top10 += 1
         if rank_c <= 100:
             top100 += 1
+        if rank_c <= 25:
+            top25 += 1
+        if rank_c <= 50:
+            top50 += 1
     
     n = len(data)
     top1 /= n
     top10 /= n
     top100 /= n
+    top25 /= n
+    top50 /= n
     mean_rank /= n
     total_classes = len(embeds)
-    return top1,top10,top100,mean_rank,rank_vals,total_classes  
+    print(count)
+    return top1,top10,top25,top50,top100,mean_rank,rank_vals,total_classes   
 
 def compute_rank_percentile(scores,x):
     scores.sort()
@@ -153,36 +168,55 @@ def out_results(rks_vals):
     percentile_below1000 = calculate_percentile_1000(rks_vals)
     print("Percentile for below 1000:",percentile_below1000)
     print("% Cases with rank greater than 1000:",(100 - percentile_below1000))
+    return med_rank, per_rank_90, percentile_below1000, (100 - percentile_below1000)
 
 def print_results(rks_vals,n):
     print("top1:",top1)
     print("top10:",top10)
+    print("top25:",top25)
+    print("top50:",top50)
     print("top100:",top100)
     print("Mean Rank:",mean_rank)
     rank_dicts = dict(Counter(rks_vals))
-    print("AUC:",compute_rank_roc(rank_dicts,n))
-    out_results(rks_vals) 
+    auc = compute_rank_roc(rank_dicts,n)
+    print("AUC:",auc)
+    mr, pr, p, bp = out_results(rks_vals) 
+    print("top1, top10, top25, top50, top100, Mean Rank, AUC, Median Rank, 90th percentile rank, Pecentile for below 1000, % Cases with rank greater than 1000")
+    print(top1, top10, top25, top50, top100, mean_rank, auc, mr, pr, p, bp) 
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--tag", type=str, action = 'store', help="Data split eq 1_1, 1_n, n_n", default="1_1")
+    parser.add_argument("--margin", type=str, action = 'store', help="Data split eq 1_1, 1_n, n_n", default="-0.1")
+    parser.add_argument("--dim", type=str, action = 'store', help="Data split eq 1_1, 1_n, n_n", default="100")
+    parser.add_argument("--early_stop", type=bool, action = 'store', help="Data split eq 1_1, 1_n, n_n", default=False)
+    args = parser.parse_args()
+    tag=args.tag
+    print(args.early_stop, type(args.early_stop))
+    if not args.early_stop:
+        AEL_dir = 'Experiments/results_no_early_stopping/SNOMED/'
+    else:
+        AEL_dir = 'Experiments/results/SNOMED/'
+    test_file = 'Experiments/data/SNOMED/'+tag+'/test.txt'
+    test_data = load_eval_data(test_file)
+
+    # margin = -0.1
+    margin = eval(args.margin)
+    # embedding_size = 100
+    embedding_size = eval(args.dim)
+    batch_size =  256
+    reg_norm=1
+    learning_rate=3e-4
+    cls_embeds_file = AEL_dir+tag+'_{'+str(embedding_size)+'}_{'+str(margin)+'}_{1000}.pkl'
+
+    print(tag, margin, embedding_size)
+
+    print('start evaluation........')
+    top1,top10,top25,top50,top100,mean_rank,rank_vals,n_cls = evaluate_hits(test_data,cls_embeds_file,embedding_size,batch_size,margin,reg_norm)
 
 
-tag='SNOMED'
-AEL_dir = 'experiments/results/'
-test_file = 'experiments/data/'+tag+'/'+tag+'_test.txt'
-test_data = load_eval_data(test_file)
-
-margin = -0.1
-embedding_size = 100
-batch_size =  256
-reg_norm=1
-learning_rate=3e-4
-cls_embeds_file = AEL_dir+tag+'_{'+str(embedding_size)+'}_{'+str(margin)+'}_{1000}.pkl'
-
-
-print('start evaluation........')
-top1,top10,top100,mean_rank,rank_vals,n_cls = evaluate_hits(test_data,cls_embeds_file,embedding_size,batch_size,margin,reg_norm)
-
-
-print("EmEL Results on test data")
-print_results(rank_vals,n_cls)
+    print("EmEL Results on test data")
+    print_results(rank_vals,n_cls)
 
 
 # # In[98]:
