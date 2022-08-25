@@ -63,7 +63,7 @@ Executing the code:
 
 ## Data
 
-The preprocessed data for Snomed, Galen and GO are present [here](https://drive.google.com/file/d/1HHXogBAaQ5f0lJrAI_fVkuAmSTuh2IQW/view?usp=sharing)
+The preprocessed data for Snomed, Galen and GO are present [here](https://doi.org/10.5281/zenodo.7023568)
 	
 Create Experiments/Data folder which would contain all the data.
 
