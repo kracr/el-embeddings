@@ -1,4 +1,6 @@
 import os
+os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"  
+os.environ["CUDA_VISIBLE_DEVICES"] = "MIG-GPU-714a8f8e-44b2-93f1-e64d-d5f204c379de/1/0"
 import click as ck
 import numpy as np
 import pandas as pd
@@ -13,6 +15,7 @@ import torch.nn.functional as F
 from scipy.stats import rankdata
 import pickle as pkl
 import random
+from datetime import datetime
 
 def set_seed(args):
     random.seed(args.seed)
@@ -176,6 +179,7 @@ def load_data(filename, all_subcls):
     data['radius'] = np.array(data['radius'])
                             
     for key, val in data.items():
+        print(key, len(val))
         index = np.arange(len(data[key]))
         np.random.seed(seed=100)
         np.random.shuffle(index)
@@ -666,7 +670,7 @@ def build_model(train_data,classes,relations,valid_data, margin, embedding_size,
             
             with open(out_file, 'wb') as f:
                 pkl.dump(df, f)
-        
+        # early stopping rule
         else:
             if valid_count < 8:
                 learning_rate = 0.75 * learning_rate
@@ -689,6 +693,9 @@ if __name__ == "__main__":
     
     args = parser.parse_args()
 
+    print("check")
+    print(datetime.now().strftime("%H:%M:%S"))
+
     total_sub_cls=[]
     train_file = "../data/"+args.data+"/train.txt"
     val_file = "../data/"+args.data+"/valid.txt"
@@ -697,16 +704,29 @@ if __name__ == "__main__":
     valid_data_file="../data/"+args.data+"/valid.txt"
     
     train_sub_cls,train_samples = load_cls(train_file)
+    print("check")
     valid_sub_cls,valid_samples = load_cls(val_file)
+    print("check")
  #   test_sub_cls,test_samples = load_cls(test_file)
     total_sub_cls = train_sub_cls + valid_sub_cls
     all_subcls = list(set(total_sub_cls))
+    print("check")
     
     train_data_model, classes, relations = load_data(gdata_file, all_subcls)
+    print("check")
     valid_data_model = load_valid_data(valid_data_file, classes, relations)
+    print("check")
+    print(datetime.now().strftime("%H:%M:%S"))
+
     
-    embed_dims = [100, 50, 200]
-    margins = [-0.1,0,0.1]
+    embed_dims = [
+        100, 
+        # 200
+        ]
+    margins = [
+        0,
+        # 0.1
+        ]
 
     batch_size = args.bs
     reg_norm = args.reg_norm
@@ -720,8 +740,8 @@ if __name__ == "__main__":
         for m in margins:
             margin = m
             print("**************Margin Loss:",margin,"***************")
-            out_file = f'../results/semrec/'+args.data+'_{'+str(embedding_size)+'}_{'+str(margin)+'}_{'+str(epochs)+'}.pkl'
-            loss_history_file= f'../results/semrec/'+args.data+'_lossHis_{'+str(embedding_size)+'}_{'+str(margin)+'}_{'+str(epochs)+'}.csv'
+            out_file = f'../results/'+args.data+'_{'+str(embedding_size)+'}_{'+str(margin)+'}_{'+str(epochs)+'}.pkl'
+            loss_history_file= f'../results/'+args.data+'_lossHis_{'+str(embedding_size)+'}_{'+str(margin)+'}_{'+str(epochs)+'}.csv'
             build_model(train_data_model,classes,relations,valid_data_model, margin, embedding_size, batch_size, reg_norm, learning_rate, epochs, out_file, args.data)
 
 
