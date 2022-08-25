@@ -186,6 +186,7 @@ def print_results(rks_vals,n):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    parser.add_argument("--data", type=str, action = 'store', help="Data", default="GALEN")
     parser.add_argument("--tag", type=str, action = 'store', help="Data split eq 1_1, 1_n, n_n", default="1_1")
     parser.add_argument("--margin", type=str, action = 'store', help="Data split eq 1_1, 1_n, n_n", default="-0.1")
     parser.add_argument("--dim", type=str, action = 'store', help="Data split eq 1_1, 1_n, n_n", default="100")
@@ -194,10 +195,11 @@ if __name__ == "__main__":
     tag=args.tag
     print(args.early_stop, type(args.early_stop))
     if not args.early_stop:
-        AEL_dir = 'Experiments/results_no_early_stopping/SNOMED/'
+        AEL_dir = f'Experiments/results_no_early_stopping/{args.data}/'
     else:
-        AEL_dir = 'Experiments/results/SNOMED/'
-    test_file = 'Experiments/data/SNOMED/'+tag+'/test.txt'
+        AEL_dir = f'Experiments/results/{args.data}/'
+    test_file = f'Experiments/data/{args.data}/{args.data}_inferences.txt'
+    # test_file = f'Experiments/data/{args.data}/'+tag+'/test.txt'
     test_data = load_eval_data(test_file)
 
     # margin = -0.1

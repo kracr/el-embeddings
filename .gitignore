@@ -132,3 +132,4 @@ dmypy.json
 # folders
 results*/
 test_results*/
+Experiments/data/

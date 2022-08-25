@@ -7,7 +7,7 @@ do
   do
     for type in 1_1 1_n n_n
     do
-      python Evaluating_HITS.py --tag $type --margin $margin --dim $dim --early_stop True > test_results/SNOMED/result_$type\_{$dim}_{$margin}_{1000}.txt
+      python Evaluating_HITS.py --data SNOMED --tag $type --margin $margin --dim $dim --early_stop True > test_results/SNOMED/inference_$type\_{$dim}_{$margin}_{1000}.txt
       # python Evaluating_HITS.py --tag $type --margin $margin --dim $dim > test_results_no_early_stopping/result_$type\_{$dim}_{$margin}_{1000}.txt
       # echo result_$type\_{$dim}_{$margin}_{1000}.txt
     done
