@@ -63,7 +63,8 @@ Executing the code:
 
 ## Data
 
-The preprocessed data for Snomed, Galen and GO are present [here](https://doi.org/10.5281/zenodo.7023568)
+<!-- The preprocessed data for Snomed, Galen and GO are present [here](https://doi.org/10.5281/zenodo.7023568) -->
+The ontologies used in our evaluation (SNOMED CT, GALEN, GO) are publicly available.
 	
 Create Experiments/Data folder which would contain all the data.
 
