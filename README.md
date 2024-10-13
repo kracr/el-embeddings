@@ -2,26 +2,6 @@
 EmEL-V is a geometric approach to generate embeddings for the description logic EL++
 The implementation is done using Python and Pytorch Library.
 
-## Requirements      
-Click 7.0    
-cycler 0.10.0    
-gast 0.2.2    
-grpcio 1.18.0    
-Keras-Applications 1.0.6    
-Keras-Preprocessing 1.0.5    
-numpy 1.16.0    
-pandas 0.23.4    
-pkg-resources 0.0.0         
-pytz 2018.9    
-scikit-learn 0.20.2    
-scipy 1.2.0    
-six 1.12.0     
-sklearn 0.0  
-torch 1.5.0
-
-tensorboard 1.15.0     
-tensorflow-gpu 1.15.0 
-
 The code is organized as follows:
 - Experiments: This contains separate folder for each ontology the experiment is carried out upon.
 - Experiments folder contains models, data and results folder(create an empty results folder and the others required to store the model)
